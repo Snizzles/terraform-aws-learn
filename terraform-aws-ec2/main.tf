@@ -17,7 +17,7 @@ resource "aws_subnet" "main" {
 
 # --- Security ---
 
-# Use a data source to automatically find your current IP address
+# Use a data source to automatically find the current IP address
 data "http" "my_ip" {
   url = "http://ipv4.icanhazip.com"
 }
@@ -45,7 +45,7 @@ resource "aws_security_group" "allow_ssh" {
 # --- Compute ---
 
 resource "aws_instance" "web_server" {
-  ami           = "ami-0644d0c7fe285b225" # Your new ARM-based Amazon Linux 2023 AMI
+  ami           = "ami-0644d0c7fe285b225" # ARM-based Amazon Linux 2023 AMI
   instance_type = "t4g.micro"            # A free-tier eligible ARM instance type
 
   subnet_id              = aws_subnet.main.id
