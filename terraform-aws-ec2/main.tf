@@ -6,7 +6,19 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  # The backend block goes INSIDE the terraform block
+  backend "s3" {
+    bucket         = "snizzles-terraform-state-20251109"
+    key            = "projects/ec2/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-project-lock"
+    encrypt        = true
+  }
+
 }
+
+
 
 provider "aws" {
   region = var.aws_region
@@ -24,6 +36,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "main" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.1.0/24"
+  availability_zone = data.aws_availability_zones.available.names[0]
   tags = {
     Name = "main-subnet"
   }
@@ -34,6 +47,10 @@ resource "aws_subnet" "main" {
 # Use a data source to automatically find the current IP address
 data "http" "my_ip" {
   url = "http://ipv4.icanhazip.com"
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
 resource "aws_security_group" "allow_ssh" {
