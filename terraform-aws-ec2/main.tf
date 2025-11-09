@@ -1,3 +1,17 @@
+# Adding Terraform block first
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
 # --- Networking ---
 
 resource "aws_vpc" "main" {
@@ -45,8 +59,10 @@ resource "aws_security_group" "allow_ssh" {
 # --- Compute ---
 
 resource "aws_instance" "web_server" {
-  ami           = "ami-0644d0c7fe285b225" # ARM-based Amazon Linux 2023 AMI
-  instance_type = "t4g.micro"            # A free-tier eligible ARM instance type
+  ami           = var.instance_ami
+  instance_type = var.instance_type            # A free-tier eligible ARM instance type
+
+  associate_public_ip_address = true
 
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
@@ -56,9 +72,3 @@ resource "aws_instance" "web_server" {
   }
 }
 
-# --- Output ---
-
-output "instance_public_ip" {
-  value       = aws_instance.web_server.public_ip
-  description = "The public IP address of the web server instance."
-}
